@@ -4,6 +4,13 @@ const appServer = express();
 const router = express.Router();
 const fs = require("fs");
 
+// Middleware
+const bodyParser = require("body-parser");
+
+// Config
+appServer.use(express.static("public"));
+
+
 // ------------------- Middleware - kiem soat tinh huong
 router.use( (yeucau, trave, ketiep) => { 
     console.log("REQ: ", Date.now(), yeucau.url);
@@ -29,21 +36,22 @@ router.get( "/home" , (yeucau, trave) => {
     trave.send(pageContent);
 });
 
-router.get( "/login" , (yeucau, trave) => {
-    data = fs.readFileSync("./html/login.html");
-    pageContent = data.toString();
-    trave.send(pageContent);
-});
 
-router.get( "/products" , (yeucau, trave) => {
-    data = fs.readFileSync("./html/products.html");
-    pageContent = data.toString();
-    trave.send(pageContent);
-});
+//--- Add middleware
+//const session = express.session();
+appServer.use(bodyParser.json());
+//appServer.use(session({secret: "id-session-Mr.Tu"​}));
 
 
-// -------------------------
+// ------------------------- Add Router / Controller
 appServer.use("/", router);
+
+const ProductRouter = require("./controller/productController").ProductRouter;
+appServer.use("/products", ProductRouter);
+
+const LoginRouter = require("./controller/loginController").LoginRouter;
+appServer.use("/login", LoginRouter);
+
 // ----------- RUN / Launching !!! 
 appServer.listen( PORT );
 
